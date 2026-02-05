@@ -1,0 +1,13 @@
+{
+    "full_name": "Test Candidate",
+    "email": "test@example.com",
+    "college": "Test University",
+    "degree": "B.Tech",
+    "github": "https://github.com/testuser",
+    "kaggle": "https://kaggle.com/testuser",
+    "skill_prog": 5,
+    "skill_dsa": 4,
+    "skill_ml": 3,
+    "skill_web": 5,
+    "skill_tools": 4
+}

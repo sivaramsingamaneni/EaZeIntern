@@ -1,0 +1,2 @@
+This is just a text file, not a PDF.
+It should be rejected by the backend validation logic.
