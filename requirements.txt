@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+jinja2
+python-dotenv
+itsdangerous
+httpx
+pypdf
+python-multipart
+pytest
+httpx
