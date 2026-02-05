@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - EazeIntern</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .dashboard-header {
+            margin-bottom: 40px;
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        .header-sub {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .header-title {
+            font-size: 40px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--text-primary);
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Metric Detail Cards */
+        .metric-card {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .metric-val {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Simplified Progress */
+        .progress-track {
+            height: 5px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 3px;
+            width: 0;
+            /* JS will animate */
+            transition: width 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .chip {
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.04);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 18px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+
+        /* Delays for staggered animation */
+        .delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.3s;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container full-width">
+
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <!-- Replaced Text Header with Logo -->
+                    <div style="margin-bottom: 16px; opacity: 1;">
+                        <div
+                            style="background: #FF9F0A; padding: 10px; border-radius: 12px; display: inline-block; box-shadow: 0 2px 8px rgba(255, 159, 10, 0.25);">
+                            <img src="/static/logo.png" alt="EazeIntern"
+                                style="height: 50px; width: auto; display: block;">
+                        </div>
+                    </div>
+
+                    <div class="header-sub">Application ID: {{ applicant.application_id }}</div>
+                    <div class="header-title">{{ applicant.full_name }}</div>
+                    <div style="margin-top: 8px; display: inline-flex; align-items: center; gap: 8px;">
+                        <span style="height: 8px; width: 8px; background: var(--success); border-radius: 50%;"></span>
+                        <span style="font-size: 14px; font-weight: 500; color: var(--text-secondary);">Application
+                            Submitted</span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <a href="/" class="btn-secondary btn-sm">Home</a>
+                    <a href="/track" class="btn-secondary btn-sm">Sign Out</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Left Column: Skills & Profile -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+
+                <!-- Skill Ratings -->
+                <div class="card slide-up delay-1">
+                    <div class="section-title">Proficiency</div>
+                    {% if applicant.self_ratings %}
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        {% for skill, score in applicant.self_ratings.items() %}
+                        <div>
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 500;">
+                                <span>{{ skill }}</span>
+                                <span class="text-muted">{{ score }}/5</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill" style="width: {{ score * 20 }}%;"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No self-assessments recorded.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Personal Detail Snippet -->
+                <div class="card slide-up delay-2">
+                    <div class="section-title">Contact Information</div>
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 12px; font-size: 14px;">
+                        <div>
+                            <span class="text-muted" style="display: block; font-size: 12px;">Email</span>
+                            {{ applicant.email }}
+                        </div>
+                        <div>
+                            <span class="text-muted" style="display: block; font-size: 12px;">Education</span>
+                            {{ applicant.degree }} at {{ applicant.college }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Analysis & GitHub -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+
+                <!-- GitHub Activity -->
+                <div class="card slide-up delay-2">
+                    <div class="section-title">GitHub Activity</div>
+
+                    {% if applicant.github_data and not applicant.github_data.error %}
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                        <img src="{{ applicant.github_data.avatar_url }}"
+                            style="width: 50px; height: 50px; border-radius: 50%;" alt="User">
+                        <div>
+                            <div style="font-weight: 600;">{{ applicant.github_data.username }}</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">{{ applicant.github_data.bio }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <div class="metric-card">
+                            <div class="metric-val">{{ applicant.github_data.public_repos }}</div>
+                            <div class="metric-label">Repos</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-val">{{ applicant.github_data.total_stars }}</div>
+                            <div class="metric-label">Stars</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-val">{{ applicant.github_data.followers }}</div>
+                            <div class="metric-label">Followers</div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">GitHub profile not linked or private.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Resume & Skills -->
+                <div class="card slide-up delay-3">
+                    <div class="section-title">Resume Skills</div>
+                    {% if applicant.parsed_resume and applicant.parsed_resume.skills %}
+                    <div>
+                        {% for skill in applicant.parsed_resume.skills %}
+                        <span class="chip">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No additional skills detected on resume.</p>
+                    {% endif %}
+
+                    {% if applicant.github %}
+                    <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
+                        <a href="{{ applicant.github }}" target="_blank" style="font-size: 14px; font-weight: 500;">View
+                            GitHub Profile &nearr;</a>
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Trigger progress bar animation on load
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.progress-fill').forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 300);
+            });
+        });
+    </script>
+</body>
+
+</html>

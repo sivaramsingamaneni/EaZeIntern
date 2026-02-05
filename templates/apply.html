@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply - EazeIntern</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* Form specific overrides */
+        .container {
+            max-width: 680px;
+        }
+
+        .form-section {
+            padding: 40px;
+            margin-bottom: 24px;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="file"] {
+            background-color: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 0;
+            padding: 12px 0;
+            font-size: 17px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            background-color: transparent;
+            box-shadow: none;
+            border-bottom: 1px solid var(--accent);
+        }
+
+        /* Custom Slider with Fill Animation */
+        .slider-wrapper {
+            margin-bottom: 30px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .range-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(0, 0, 0, 0.1);
+            outline: none;
+            background-image: linear-gradient(var(--accent), var(--accent));
+            background-repeat: no-repeat;
+            background-size: 50% 100%;
+            /* JS will update this */
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border: 0.5px solid rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .range-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container fade-in">
+
+        <header style="text-align: center; margin-bottom: 50px;">
+            <div
+                style="background: #FF9F0A; padding: 15px; border-radius: 20px; display: inline-block; margin-bottom: 24px; box-shadow: 0 8px 20px rgba(255, 159, 10, 0.25);">
+                <img src="/static/logo.png" alt="EazeIntern" style="height: 64px; width: auto; display: block;">
+            </div>
+            <h1 style="margin-top: 0; margin-bottom: 8px;">Application</h1>
+            <p class="text-secondary">Join our team today.</p>
+        </header>
+
+        <form action="/apply" method="POST" enctype="multipart/form-data">
+
+            <!-- Personal Info -->
+            <div class="card form-section">
+                <h2>Personal Details</h2>
+
+                <div class="grid">
+                    <div class="input-group">
+                        <label for="full_name">Full Name</label>
+                        <input type="text" id="full_name" name="full_name" required placeholder="Jane Appleseed">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required placeholder="jane@example.com">
+                    </div>
+                </div>
+
+                <div class="grid">
+                    <div class="input-group">
+                        <label for="college">College / University</label>
+                        <input type="text" id="college" name="college" required placeholder="Design Academy">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="degree">Degree</label>
+                        <input type="text" id="degree" name="degree" required placeholder="B.Des or B.Tech">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio -->
+            <div class="card form-section">
+                <h2>Portfolio</h2>
+
+                <div class="input-group">
+                    <label for="github">GitHub Profile</label>
+                    <input type="text" id="github" name="github" required placeholder="github.com/username">
+                </div>
+
+                <div class="input-group">
+                    <label for="kaggle">Kaggle / Portfolio</label>
+                    <input type="text" id="kaggle" name="kaggle" required placeholder="Your personal site">
+                </div>
+
+                <div class="input-group" style="margin-top: 30px;">
+                    <label for="resume">Resume (PDF)</label>
+                    <input type="file" id="resume" name="resume" accept=".pdf" required>
+                </div>
+            </div>
+
+            <!-- Skills -->
+            <div class="card form-section">
+                <h2>Self Assessment</h2>
+                <p class="text-secondary" style="margin-bottom: 30px;">Rate your proficiency from 1 to 5.</p>
+
+                {% for skill_key, skill_name in [
+                ('skill_prog', 'Programming'),
+                ('skill_dsa', 'Data Structures'),
+                ('skill_ml', 'Machine Learning'),
+                ('skill_web', 'Web Development'),
+                ('skill_tools', 'Git & Tools')
+                ] %}
+                <div class="slider-wrapper">
+                    <div class="slider-header">
+                        <label style="margin: 0; color: var(--text-primary);">{{ skill_name }}</label>
+                        <span id="val_{{ skill_key }}" style="font-weight: 600; color: var(--accent);">3</span>
+                    </div>
+                    <!-- Default value 3/5 is 50% position: (3-1)/(5-1) * 100 = 50% -->
+                    <input type="range" name="{{ skill_key }}" min="1" max="5" value="3" class="range-slider js-slider"
+                        data-target="val_{{ skill_key }}" style="background-size: 50% 100%;">
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="text-align: center; margin-top: 40px; margin-bottom: 60px;">
+                <button type="submit" class="btn btn-orange"
+                    style="padding: 16px 48px; font-size: 17px; border: none; cursor: pointer; transition: all 0.2s;">
+                    Submit Application
+                </button>
+            </div>
+
+            <style>
+                .btn-orange {
+                    background-color: #FF9F0A;
+                    color: white;
+                }
+
+                .btn-orange:hover {
+                    background-color: #FF9F0A;
+                    color: black;
+                    transform: scale(1.02);
+                    box-shadow: 0 4px 12px rgba(255, 159, 10, 0.3);
+                }
+            </style>
+
+        </form>
+    </div>
+
+    <script>
+        // Script to handle slider fill animation
+        const sliders = document.querySelectorAll('.js-slider');
+
+        sliders.forEach(slider => {
+            slider.addEventListener('input', function () {
+                // Update text value
+                const targetId = this.getAttribute('data-target');
+                document.getElementById(targetId).innerText = this.value;
+
+                // Update fill background
+                const value = (this.value - this.min) / (this.max - this.min) * 100;
+                this.style.backgroundSize = value + '% 100%';
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Application</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .track-container {
+            max-width: 500px;
+            margin: 50px auto;
+            text-align: center;
+            padding: 30px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-message {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #6c757d;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="track-container">
+        <h1>View Your Application</h1>
+        <p>Enter your Application ID below to check your status.</p>
+
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="/track" method="POST">
+            <div class="form-group">
+                <input type="text" name="application_id" placeholder="Enter Application ID" required
+                    value="{{ application_id if application_id else '' }}"
+                    style="text-align: center; font-family: monospace; font-size: 1.1em;">
+            </div>
+            <button type="submit" class="btn">View Application</button>
+        </form>
+
+        <a href="/" class="back-link">&larr; Back to Home</a>
+    </div>
+</body>
+
+</html>

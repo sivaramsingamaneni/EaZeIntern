@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruiter Console - EazeIntern</title>
+    <link href="/static/style.css" rel="stylesheet">
+    <style>
+        /* Admin-specific layout overrides */
+        body {
+            background-color: var(--surface);
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding: 0 10px;
+        }
+
+        .admin-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .admin-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Data Panel Row */
+        .data-row {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr 1fr 0.5fr;
+            align-items: center;
+            background: var(--bg);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 12px;
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .data-row:hover {
+            transform: scale(1.005) translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            border-color: rgba(0, 0, 0, 0.08);
+        }
+
+        .row-primary {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .row-secondary {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .row-meta {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Score Badge */
+        .score-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 28px;
+            padding: 0 12px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 600;
+            min-width: 48px;
+        }
+
+        .score-high {
+            background: rgba(52, 199, 89, 0.1);
+            color: #34c759;
+        }
+
+        .score-med {
+            background: rgba(255, 159, 10, 0.1);
+            color: #ff9f0a;
+        }
+
+        .score-low {
+            background: rgba(255, 59, 48, 0.1);
+            color: #ff3b30;
+        }
+
+        .score-none {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-secondary);
+        }
+
+        /* Animation Delays */
+        .fade-in-row {
+            opacity: 0;
+            animation: fadeInRow 0.5s ease forwards;
+        }
+
+        @keyframes fadeInRow {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Hover Preview Panel */
+        .candidate-preview {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            /* Slightly clearer border */
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12), 0 2px 10px rgba(0, 0, 0, 0.05);
+            /* Softer, deeper shadow */
+            border-radius: 14px;
+            padding: 16px;
+            width: 260px;
+            opacity: 0;
+            transform: scale(0.96) translateY(4px);
+            transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            /* Apple spring-like */
+            display: block;
+            /* Kept in DOM but hidden via opacity */
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .candidate-preview.active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        /* Search Input */
+        .search-container {
+            margin-bottom: 24px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 14px 20px;
+            font-size: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            /* Subtle grey border */
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--text-primary);
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            outline: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .search-input:focus {
+            background: #ffffff;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-soft);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .btn-export {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 48px;
+            padding: 0 20px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-export:hover {
+            background: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container full-width" style="max-width: 1100px;">
+
+        <header class="admin-header">
+            <div>
+                <div
+                    style="background: #FF9F0A; padding: 5px; border-radius: 14px; display: inline-block; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(255, 159, 10, 0.25);">
+                    <img src="/static/logo.png" alt="EazeIntern" style="height: 60px; width: auto; display: block;">
+                </div>
+                <h1 class="admin-title">Recruiter Console</h1>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <a href="/" class="btn-secondary btn-sm"
+                    style="background: white; border: 1px solid rgba(0,0,0,0.05);">View Site</a>
+                <a href="/admin/logout" class="btn-secondary btn-sm"
+                    style="color: var(--danger); background: white; border: 1px solid rgba(0,0,0,0.05);">Logout</a>
+            </div>
+        </header>
+
+        <!-- Search Bar & Exports -->
+        <div class="search-container">
+            <input type="text" id="candidateSearch" class="search-input"
+                placeholder="Search candidates by name, skill, college...">
+            <button onclick="exportCSV()" class="btn-export">Export CSV</button>
+            <button onclick="exportJSON()" class="btn-export">Export JSON</button>
+        </div>
+
+        {% if applicants %}
+
+        <!-- Column Headers -->
+        <div
+            style="display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr 0.5fr; padding: 0 24px; margin-bottom: 12px; font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">
+            <div>Candidate</div>
+            <div>Education</div>
+            <div>GitHub Stats</div>
+            <div>Overall Score</div>
+            <div style="text-align: right;">Action</div>
+        </div>
+
+        <div class="list-container">
+            {% for applicant in applicants %}
+            <a href="/admin/applicant/{{ applicant.application_id }}" class="data-row fade-in-row"
+                style="animation-delay: {{ loop.index0 * 0.05 }}s;" data-id="{{ applicant.application_id }}"
+                data-name="{{ applicant.full_name }}" data-email="{{ applicant.email }}"
+                data-skills="{{ applicant.skills_preview }}" data-repos="{{ applicant.gh_repos }}"
+                data-stars="{{ applicant.gh_stars }}" data-score="{{ applicant.overall_score }}"
+                data-college="{{ applicant.college }}" data-degree="{{ applicant.degree }}">
+
+                <!-- Candidate Info -->
+                <div>
+                    <div class="row-primary">{{ applicant.full_name }}</div>
+                    <div class="row-secondary">#{{ applicant.application_id }}</div>
+                </div>
+
+                <!-- Education -->
+                <div>
+                    <div class="row-meta" style="color: var(--text-primary);">{{ applicant.college }}</div>
+                    <div class="row-secondary">{{ applicant.degree }}</div>
+                </div>
+
+                <!-- GitHub -->
+                <div class="row-meta">
+                    {{ applicant.gh_repos }} Repos / {{ applicant.gh_stars }} Stars
+                </div>
+
+                <!-- Score -->
+                <div>
+                    {% if applicant.overall_score != "N/A" %}
+                    {% if applicant.overall_score >= 80 %}
+                    <span class="score-badge score-high">{{ applicant.overall_score }}</span>
+                    {% elif applicant.overall_score >= 60 %}
+                    <span class="score-badge score-med">{{ applicant.overall_score }}</span>
+                    {% else %}
+                    <span class="score-badge score-low">{{ applicant.overall_score }}</span>
+                    {% endif %}
+                    {% else %}
+                    <span class="score-badge score-none">Pending</span>
+                    {% endif %}
+                </div>
+
+                <!-- Action -->
+                <div style="text-align: right;">
+                    <span style="font-size: 20px; color: var(--text-secondary);">&rsaquo;</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="card" style="text-align: center; padding: 80px 20px;">
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">No active applications found.</p>
+            <a href="/" class="btn-secondary">Return to Home</a>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tooltip = document.createElement('div');
+            tooltip.className = 'candidate-preview';
+            document.body.appendChild(tooltip);
+
+            const rows = document.querySelectorAll('.data-row');
+
+            rows.forEach(row => {
+                let hoverTimeout;
+
+                row.addEventListener('mouseenter', () => {
+                    const name = row.dataset.name;
+                    const skills = row.dataset.skills;
+                    const repos = row.dataset.repos;
+                    const stars = row.dataset.stars;
+                    const score = row.dataset.score;
+
+                    hoverTimeout = setTimeout(() => {
+                        tooltip.innerHTML = `
+                            <div style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">${name}</div>
+                            
+                            <div style="margin-bottom: 8px;">
+                                <div style="font-size: 11px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 4px;">Top Skills</div>
+                                <div style="font-size: 13px; color: var(--text-primary); line-height: 1.4;">${skills}</div>
+                            </div>
+
+                            <div style="display: flex; gap: 16px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px;">
+                                <div>
+                                    <div style="font-size: 11px; color: var(--text-secondary);">GitHub</div>
+                                    <div style="font-size: 13px; font-weight: 500;">${repos} Repos / ${stars} ★</div>
+                                </div>
+                                <div style="margin-left: auto; text-align: right;">
+                                    <div style="font-size: 11px; color: var(--text-secondary);">Score</div>
+                                    <div style="font-size: 13px; font-weight: 700; color: var(--accent);">${score}</div>
+                                </div>
+                            </div>
+                        `;
+                        tooltip.classList.add('active');
+                    }, 600); // 600ms delay
+                });
+
+                row.addEventListener('mousemove', (e) => {
+                    // Position floating near cursor
+                    const x = e.clientX + 20;
+                    const y = e.clientY + 20;
+
+                    tooltip.style.left = `${x}px`;
+                    tooltip.style.top = `${y}px`;
+                });
+
+                row.addEventListener('mouseleave', () => {
+                    clearTimeout(hoverTimeout); // Cancel if mouse leaves early
+                    tooltip.classList.remove('active');
+                });
+            });
+
+            // Search Logic
+            const searchInput = document.getElementById('candidateSearch');
+            const noResults = document.getElementById('noResults');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const term = e.target.value.toLowerCase().trim();
+                    let visibleCount = 0;
+
+                    rows.forEach(row => {
+                        const name = (row.dataset.name || '').toLowerCase();
+                        const college = (row.dataset.college || '').toLowerCase();
+                        const degree = (row.dataset.degree || '').toLowerCase();
+                        const skills = (row.dataset.skills || '').toLowerCase();
+                        const langs = (row.dataset.languages || '').toLowerCase();
+
+                        // Combined text pool for easier matching
+                        const searchPool = `${name} ${college} ${degree} ${skills}`;
+
+                        if (searchPool.includes(term)) {
+                            row.style.display = 'grid'; // Restore grid layout
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+
+                    // Show/Hide No Results
+                    // Note: noResults element needs to be added back if it was lost in replacements or ensure it exists
+                    if (document.getElementById('noResults')) {
+                        if (visibleCount === 0 && rows.length > 0) {
+                            document.getElementById('noResults').style.display = 'block';
+                        } else {
+                            document.getElementById('noResults').style.display = 'none';
+                        }
+                    }
+                });
+            }
+        });
+
+        // Export Functions
+        function getCandidateData() {
+            const rows = document.querySelectorAll('.data-row');
+            const data = [];
+
+            rows.forEach(row => {
+                // Export ONLY visible rows (respect search filter)
+                if (row.style.display !== 'none') {
+                    data.push({
+                        "Application ID": row.dataset.id,
+                        "Name": row.dataset.name,
+                        "Email": row.dataset.email,
+                        "College": row.dataset.college,
+                        "Degree": row.dataset.degree,
+                        "Top Skills": row.dataset.skills,
+                        "GitHub Repos": row.dataset.repos,
+                        "GitHub Stars": row.dataset.stars,
+                        "Overall Score": row.dataset.score
+                    });
+                }
+            });
+            return data;
+        }
+
+        function getFilename(extension) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `eazeintern_candidates_${year}${month}${day}.${extension}`;
+        }
+
+        function exportCSV() {
+            const data = getCandidateData();
+            if (data.length === 0) return alert("No visible candidates to export.");
+
+            const headers = Object.keys(data[0]);
+            const csvRows = [headers.join(',')];
+
+            data.forEach(row => {
+                const values = headers.map(header => {
+                    const val = row[header] || '';
+                    // Escape quotes and wrap in quotes
+                    return `"${val.toString().replace(/"/g, '""')}"`;
+                });
+                csvRows.push(values.join(','));
+            });
+
+            downloadFile(csvRows.join('\n'), getFilename('csv'), 'text/csv');
+        }
+
+        function exportJSON() {
+            // Use backend endpoint which provides full dataset and secure download
+            window.location.href = '/admin/export/json';
+        }
+
+        function downloadFile(content, fileName, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+
+</html>

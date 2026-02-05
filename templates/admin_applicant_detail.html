@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ applicant.full_name }} | Admin View</title>
+    <link href="/static/style.css" rel="stylesheet">
+    <style>
+        .detail-header {
+            margin-bottom: 40px;
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        .header-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .applicant-name {
+            font-size: 40px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--text-primary);
+        }
+
+        .applicant-id {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-family: "SF Mono", Menlo, monospace;
+        }
+
+        .section-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        /* Score Circle */
+        .score-circle-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .score-big {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .score-green {
+            color: #34c759;
+        }
+
+        .score-orange {
+            color: #ff9f0a;
+        }
+
+        .score-red {
+            color: #ff3b30;
+        }
+
+        /* Breakdown Bars */
+        .breakdown-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .breakdown-label {
+            width: 80px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .breakdown-track {
+            flex: 1;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
+            margin: 0 12px;
+            overflow: hidden;
+        }
+
+        .breakdown-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        /* Animation Delays */
+        .slide-up {
+            opacity: 0;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.3s;
+        }
+
+        .delay-4 {
+            animation-delay: 0.4s;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container full-width">
+
+        <!-- Header -->
+        <header class="detail-header">
+            <div class="header-top-row">
+                <a href="/admin" class="btn-secondary btn-sm">&larr; Dashboard</a>
+                <div class="applicant-id">ID: {{ applicant.application_id }}</div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <h1 class="applicant-name">{{ applicant.full_name }}</h1>
+                    <p class="text-secondary" style="font-size: 17px; margin: 0;">{{ applicant.degree }} at {{
+                        applicant.college }}</p>
+                </div>
+
+                <!-- Overall Score -->
+                {% set score = applicant.overall_score|default(0)|int %}
+                <div class="score-circle-container">
+                    <div style="text-align: right;">
+                        <span class="section-label" style="margin-bottom: 4px;">Overall Score</span>
+                        <div
+                            class="score-big {% if score >= 80 %}score-green{% elif score >= 60 %}score-orange{% else %}score-red{% endif %}">
+                            {{ score }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid" style="grid-template-columns: 2fr 1fr;">
+
+            <!-- Left Main Column -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+
+                <!-- Detailed Scoring -->
+                <div class="card slide-up delay-1">
+                    <span class="section-label">Score Breakdown</span>
+                    {% if applicant.score_breakdown %}
+                    <div style="margin-top: 16px;">
+                        <!-- Skills -->
+                        <div class="breakdown-row">
+                            <span class="breakdown-label">Skills</span>
+                            <div class="breakdown-track">
+                                <div class="breakdown-fill"
+                                    style="width: {{ (applicant.score_breakdown.skills|default(0) / 40 * 100) }}%; background: var(--accent);">
+                                </div>
+                            </div>
+                            <span style="font-size: 13px; font-weight: 600; width: 40px; text-align: right;">{{
+                                applicant.score_breakdown.skills|default(0) }}</span>
+                        </div>
+                        <!-- Resume -->
+                        <div class="breakdown-row">
+                            <span class="breakdown-label">Resume</span>
+                            <div class="breakdown-track">
+                                <div class="breakdown-fill"
+                                    style="width: {{ (applicant.score_breakdown.resume|default(0) / 30 * 100) }}%; background: var(--accent);">
+                                </div>
+                            </div>
+                            <span style="font-size: 13px; font-weight: 600; width: 40px; text-align: right;">{{
+                                applicant.score_breakdown.resume|default(0) }}</span>
+                        </div>
+                        <!-- GitHub -->
+                        <div class="breakdown-row">
+                            <span class="breakdown-label">GitHub</span>
+                            <div class="breakdown-track">
+                                <div class="breakdown-fill"
+                                    style="width: {{ (applicant.score_breakdown.github|default(0) / 30 * 100) }}%; background: var(--accent);">
+                                </div>
+                            </div>
+                            <span style="font-size: 13px; font-weight: 600; width: 40px; text-align: right;">{{
+                                applicant.score_breakdown.github|default(0) }}</span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-secondary">No scoring breakdown available.</p>
+                    {% endif %}
+                </div>
+
+                <!-- GitHub Deep Dive -->
+                <div class="card slide-up delay-2">
+                    <span class="section-label">GitHub Analysis</span>
+
+                    {% if applicant.github_data and not applicant.github_data.error %}
+                    <div style="display: flex; gap: 16px; align-items: center; margin: 16px 0 24px;">
+                        <img src="{{ applicant.github_data.avatar_url }}"
+                            style="width: 48px; height: 48px; border-radius: 50%;">
+                        <div>
+                            <div style="font-weight: 600;">@{{ applicant.github_data.username }}</div>
+                            <div style="font-size: 13px; color: var(--text-secondary);">{{ applicant.github_data.bio }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat">
+                            <div class="stat-value">{{ applicant.github_data.public_repos }}</div>
+                            <div class="stat-label">Repos</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">{{ applicant.github_data.total_stars }}</div>
+                            <div class="stat-label">Stars</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">{{ applicant.github_data.followers }}</div>
+                            <div class="stat-label">Followers</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 24px;">
+                        <span class="section-label" style="margin-bottom: 8px;">Top Languages</span>
+                        {% if applicant.github_data.top_languages %}
+                        <div>
+                            {% for lang, count in applicant.github_data.top_languages.items() %}
+                            <span class="tag">{{ lang }} <span style="opacity: 0.6;">{{ count }}</span></span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <p class="text-secondary">GitHub data unavailable.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Resume Analysis -->
+                <div class="card slide-up delay-3">
+                    <span class="section-label">Resume Detected Skills</span>
+                    {% if applicant.parsed_resume and applicant.parsed_resume.skills %}
+                    <div style="margin-top: 12px;">
+                        {% for skill in applicant.parsed_resume.skills %}
+                        <span class="tag"
+                            style="background: var(--surface); color: var(--text-primary); border: 1px solid rgba(0,0,0,0.05);">{{
+                            skill }}</span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-secondary" style="margin-top: 8px;">No skills parsed from resume.</p>
+                    {% endif %}
+
+                    <!-- Education -->
+                    {% if applicant.parsed_resume and applicant.parsed_resume.education %}
+                    <div style="margin-top: 24px;">
+                        <span class="section-label" style="margin-bottom: 8px;">Education</span>
+                        <ul style="padding-left: 20px; font-size: 14px; margin: 0; color: var(--text-primary);">
+                            {% for edu in applicant.parsed_resume.education %}
+                            <li style="margin-bottom: 4px;">{{ edu }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <!-- Experience -->
+                    {% if applicant.parsed_resume and applicant.parsed_resume.experience %}
+                    <div style="margin-top: 24px;">
+                        <span class="section-label" style="margin-bottom: 8px;">Experience</span>
+                        <ul style="padding-left: 20px; font-size: 14px; margin: 0; color: var(--text-primary);">
+                            {% for exp in applicant.parsed_resume.experience %}
+                            <li style="margin-bottom: 4px;">{{ exp }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
+                        <a href="/applications/{{ applicant.application_id }}/resume.pdf" target="_blank"
+                            style="font-size: 14px; font-weight: 500;">Download Original PDF &nearr;</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Sidebar -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+
+                <!-- Contact Card -->
+                <div class="card slide-up delay-2">
+                    <span class="section-label">Contact</span>
+                    <div style="margin-top: 12px;">
+                        <div style="margin-bottom: 16px;">
+                            <div class="text-secondary" style="font-size: 12px;">Email</div>
+                            <div style="font-size: 14px; font-weight: 500;">{{ applicant.email }}</div>
+                        </div>
+
+                        <div style="margin-bottom: 16px;">
+                            <div class="text-secondary" style="font-size: 12px;">Links</div>
+                            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+                                {% if applicant.github %}
+                                <a href="{{ applicant.github }}" target="_blank" style="font-size: 13px;">GitHub
+                                    Profile</a>
+                                {% endif %}
+                                {% if applicant.kaggle_url %}
+                                <a href="{{ applicant.kaggle_url }}" target="_blank" style="font-size: 13px;">Portfolio
+                                    / Kaggle</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Self Rates -->
+                <div class="card slide-up delay-3">
+                    <span class="section-label">Self Assessment</span>
+                    {% if applicant.self_ratings %}
+                    <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 12px;">
+                        {% for skill, score in applicant.self_ratings.items() %}
+                        <div>
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 500; margin-bottom: 4px;">
+                                <span>{{ skill }}</span>
+                                <span class="text-secondary">{{ score }}/5</span>
+                            </div>
+                            <div class="breakdown-track" style="margin: 0;">
+                                <div class="breakdown-fill"
+                                    style="width: {{ score * 20 }}%; background: var(--text-secondary);"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>

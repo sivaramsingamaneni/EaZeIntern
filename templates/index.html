@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EazeIntern - Intelligent Hiring</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* Landing Specific Overrides */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--bg);
+            display: flex;
+            /* Override column flex from style.css */
+            flex-direction: row;
+            /* Split screen */
+            align-items: stretch;
+        }
+
+        /* Split Layout */
+        .split-left {
+            width: 65%;
+            background: var(--surface);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 8vw;
+            position: relative;
+        }
+
+        .split-right {
+            width: 35%;
+            background: var(--bg);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Logo */
+        .brand-logo {
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeDown 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        /* Typography */
+        h1.hero-title {
+            font-size: 56px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.05;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            opacity: 0;
+            animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.2s;
+        }
+
+        p.hero-sub {
+            font-size: 21px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            font-weight: 400;
+            max-width: 500px;
+            margin-bottom: 60px;
+            opacity: 0;
+            animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.4s;
+        }
+
+        /* Action Panel */
+        .action-panel {
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto;
+            opacity: 0;
+            animation: fadeLeft 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards 0.6s;
+        }
+
+        .panel-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 20px 24px;
+            background: var(--surface);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            background: #fff;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            text-decoration: none;
+        }
+
+        .action-btn span:last-child {
+            color: var(--text-secondary);
+            font-size: 20px;
+        }
+
+        .primary-btn {
+            background: #FF9F0A;
+            color: white;
+            transition: all 0.2s ease;
+        }
+
+        .primary-btn:hover {
+            opacity: 1;
+            background: #FF9F0A;
+            color: black !important;
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(255, 159, 10, 0.4);
+        }
+
+        .primary-btn:hover span:last-child {
+            color: black;
+        }
+
+        /* Animation Stage */
+        .visual-stage {
+            height: 180px;
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            animation: fadeIn 1.5s ease forwards 0.8s;
+        }
+
+        /* Animation Nodes */
+        .node {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: white;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            z-index: 2;
+        }
+
+        /* Positions */
+        .n1 {
+            left: 0;
+        }
+
+        .n2 {
+            left: 25%;
+        }
+
+        .n3 {
+            left: 50%;
+        }
+
+        .n4 {
+            left: 75%;
+        }
+
+        .n5 {
+            left: 100%;
+            transform: translateX(-100%);
+        }
+
+        /* Connecting Lines */
+        .line {
+            position: absolute;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.06);
+            top: 50%;
+            left: 25px;
+            right: 25px;
+            z-index: 1;
+        }
+
+        /* The Moving "Data Packet" */
+        .packet {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 25px;
+            /* Start center of n1 */
+            margin-top: -4px;
+            z-index: 3;
+            box-shadow: 0 0 10px var(--accent);
+            animation: traverse 8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Node Pulse Animations */
+        .n1 {
+            animation: pulseNode 8s infinite 0s;
+        }
+
+        .n2 {
+            animation: pulseNode 8s infinite 1.6s;
+        }
+
+        /* 20% of 8s */
+        .n3 {
+            animation: pulseNode 8s infinite 3.2s;
+        }
+
+        /* 40% */
+        .n4 {
+            animation: pulseNode 8s infinite 4.8s;
+        }
+
+        /* 60% */
+        .n5 {
+            animation: pulseNode 8s infinite 6.4s;
+        }
+
+        /* 80% */
+
+        @keyframes traverse {
+            0% {
+                left: 25px;
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            5% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            20% {
+                left: 25%;
+            }
+
+            40% {
+                left: 50%;
+            }
+
+            60% {
+                left: 75%;
+            }
+
+            80% {
+                left: calc(100% - 25px);
+                opacity: 1;
+            }
+
+            95% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            100% {
+                left: calc(100% - 25px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes pulseNode {
+
+            0%,
+            100% {
+                transform: scale(1);
+                border-color: var(--border);
+            }
+
+            5% {
+                transform: scale(1.15);
+                border-color: var(--accent);
+                box-shadow: 0 0 0 4px var(--accent-soft);
+            }
+
+            10% {
+                transform: scale(1);
+                border-color: var(--border);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeLeft {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Left Section: Story -->
+    <div class="split-left">
+        <!-- Brand Logo -->
+        <div class="brand-logo">
+            <div
+                style="background: #FF9F0A; padding: 5px; border-radius: 20px; display: inline-block; box-shadow: 0 10px 25px rgba(255, 159, 10, 0.3);">
+                <img src="/static/logo.png" alt="EazeIntern Logo" style="height: 100px; width: auto; display: block;">
+            </div>
+        </div>
+
+        <div>
+            <h1 class="hero-title">Hiring made<br>simple.</h1>
+            <p class="hero-sub">
+                EazeIntern automates the chaos. From resume parsing to intelligent scoring, we help you find the best
+                talent, faster.
+            </p>
+
+            <!-- Loop Animation -->
+            <div class="visual-stage">
+                <!-- Base Track -->
+                <div class="line"></div>
+
+                <!-- Moving Packet -->
+                <div class="packet"></div>
+
+                <!-- Nodes -->
+                <div class="node n1" title="Upload">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                </div>
+                <div class="node n2" title="Parse">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6;">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                    </svg>
+                </div>
+                <div class="node n3" title="Analyze">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6;">
+                        <line x1="18" y1="20" x2="18" y2="10" />
+                        <line x1="12" y1="20" x2="12" y2="4" />
+                        <line x1="6" y1="20" x2="6" y2="14" />
+                    </svg>
+                </div>
+                <div class="node n4" title="Score">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6;">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                </div>
+                <div class="node n5" title="Hire">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6;">
+                        <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Section: Action -->
+    <div class="split-right">
+        <div class="action-panel">
+            <div class="panel-title">Start Your Journey</div>
+
+            <a href="/apply" class="action-btn primary-btn">
+                Apply Now
+                <span>&rarr;</span>
+            </a>
+
+            <a href="/track" class="action-btn">
+                Check Status
+                <span>&rsaquo;</span>
+            </a>
+
+            <a href="/admin/login" class="action-btn">
+                Recruiter Console
+                <span>&rsaquo;</span>
+            </a>
+
+            <div style="margin-top: 40px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 20px;">
+                <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                    &copy; 2026 EazeIntern Inc.<br>
+                    Making hiring human again.
+                </p>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
